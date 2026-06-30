@@ -36,7 +36,8 @@
 
   /* HERO with video */
   .hero{position:relative;height:100vh;min-height:680px;display:flex;align-items:flex-end;overflow:hidden;}
-  .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(0.42) contrast(1.1);}
+  .hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:brightness(0.42) contrast(1.1);animation:heroZoom 22s ease-in-out infinite alternate;}
+  @keyframes heroZoom{0%{transform:scale(1);}100%{transform:scale(1.12);}}
   .hero-overlay{position:absolute;inset:0;background:linear-gradient(180deg,rgba(10,10,11,0.55) 0%,rgba(10,10,11,0.25) 40%,rgba(10,10,11,0.92) 100%);}
   .hero-grain{position:absolute;inset:0;opacity:0.04;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='0.9'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23n)'/%3E%3C/svg%3E");}
   .hero-content{position:relative;z-index:2;padding:0 5vw 100px;max-width:760px;}
@@ -91,14 +92,13 @@
   /* VIDEO TESTIMONIAL */
   .video-test{background:var(--black);}
   .vt-inner{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr 1fr;gap:60px;align-items:center;}
-  .vt-player{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:16/10;background:var(--dark2);cursor:pointer;}
-  .vt-player video{width:100%;height:100%;object-fit:cover;}
-  .vt-play-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:72px;height:72px;background:var(--lime);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:transform .2s, opacity .3s;z-index:3;}
-  .vt-play-btn:hover{transform:translate(-50%,-50%) scale(1.08);}
-  .vt-play-btn svg{width:22px;height:22px;margin-left:3px;}
-  .vt-player.playing .vt-play-btn{opacity:0;pointer-events:none;}
-  .vt-player-overlay{position:absolute;inset:0;background:rgba(10,10,11,0.3);z-index:2;transition:opacity .3s;}
-  .vt-player.playing .vt-player-overlay{opacity:0;pointer-events:none;}
+  .vt-player{position:relative;border-radius:8px;overflow:hidden;aspect-ratio:16/10;background:var(--dark2);}
+  .vt-player img{width:100%;height:100%;object-fit:cover;transition:transform .6s;}
+  .vt-player:hover img{transform:scale(1.04);}
+  .vt-badge{position:absolute;top:20px;left:20px;background:rgba(10,10,11,0.7);backdrop-filter:blur(6px);border:1px solid rgba(200,255,61,0.4);color:var(--lime);font-size:0.66rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;padding:8px 14px;border-radius:30px;display:flex;align-items:center;gap:8px;z-index:3;}
+  .vt-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--lime);animation:vtPulse 1.6s infinite;}
+  @keyframes vtPulse{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .vt-player-overlay{position:absolute;inset:0;background:linear-gradient(180deg,transparent 50%,rgba(10,10,11,0.85) 100%);z-index:2;pointer-events:none;}
   .vt-text blockquote{font-family:var(--display);font-size:clamp(1.3rem,2.2vw,1.9rem);text-transform:none;color:white;line-height:1.35;margin-bottom:24px;letter-spacing:-0.01em;}
   .vt-text blockquote span{color:var(--lime);}
   .vt-author{display:flex;align-items:center;gap:14px;}
@@ -219,9 +219,7 @@
 </nav>
 
 <section class="hero">
-  <video class="hero-video" autoplay muted loop playsinline poster="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=80">
-    <source src="https://assets.mixkit.co/videos/preview/mixkit-fit-woman-doing-deadlifts-in-a-gym-44781-large.mp4" type="video/mp4" />
-  </video>
+  <img class="hero-video" src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?w=1600&q=85" alt="Forge Fitness Studio" />
   <div class="hero-overlay"></div>
   <div class="hero-grain"></div>
   <div class="hero-content">
@@ -264,11 +262,9 @@
 <section class="video-test">
   <div class="vt-inner">
     <div class="vt-player reveal" id="vtPlayer">
+      <img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=900&q=85" alt="David's transformation" />
+      <div class="vt-badge"><span class="vt-badge-dot"></span>Member Story</div>
       <div class="vt-player-overlay"></div>
-      <div class="vt-play-btn" id="vtPlayBtn"><svg viewBox="0 0 10 10" fill="#0a0a0b"><polygon points="0,0 10,5 0,10"/></svg></div>
-      <video id="vtVideo" playsinline poster="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=900&q=80">
-        <source src="https://assets.mixkit.co/videos/preview/mixkit-man-doing-a-deadlift-at-the-gym-44782-large.mp4" type="video/mp4" />
-      </video>
     </div>
     <div class="vt-text reveal">
       <div class="sec-tag">Real Results</div>
@@ -574,15 +570,7 @@ new IntersectionObserver(function(entries){
   });
 },{threshold:0.4}).observe(document.querySelector(".stats-strip"));
 
-/* ── Video testimonial play/pause ── */
-var vtPlayer = document.getElementById("vtPlayer");
-var vtVideo = document.getElementById("vtVideo");
-document.getElementById("vtPlayBtn").addEventListener("click", function(){
-  vtVideo.play();
-  vtPlayer.classList.add("playing");
-});
-vtVideo.addEventListener("pause", function(){ vtPlayer.classList.remove("playing"); });
-vtVideo.addEventListener("ended", function(){ vtPlayer.classList.remove("playing"); });
+/* ── Video testimonial replaced with animated static card (no JS needed) ── */
 
 /* ── Scroll reveal ── */
 document.querySelectorAll(".reveal").forEach(function(el){
